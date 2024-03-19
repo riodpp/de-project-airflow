@@ -1,0 +1,11 @@
+de_project_airflow:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      schema: de_project
+      host: "{{ env_var('HOST_CLICKHOUSE') }}"
+      port: 8123
+      user: default_user
+      password: default_password
+      secure: False

@@ -1,0 +1,67 @@
+services:
+  # scrap-website:
+  #   image: scrap-website:1.0 
+  #   networks:
+  #     - data-eng-network
+  #   environment:
+  #     MONGODB_HOSTNAME: mongodb
+  dbt:
+    image: dbt-clickhouse-custom:1.0
+    command: ["run", "--models", "my_second_dbt_model"]
+    environment:
+      - HOST_CLICKHOUSE=clickhousedb
+    networks:
+      - data-eng-network
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    networks:
+      - data-eng-network
+    volumes:
+      - mongodb-data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=user
+      - MONGO_INITDB_ROOT_PASSWORD=password
+
+  clickhousedb:
+    image: clickhouse/clickhouse-server:24.1
+    networks:
+      - data-eng-network
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+      - clickhouse-logs:/var/log/clickhouse-server
+      - clickhouse-config:/etc/clickhouse-server/config.d/*.xml
+      - clickhouse-user:/etc/clickhouse-server/users.d/*.xml
+    environment:
+      - CLICKHOUSE_DB=default_lake
+      - CLICKHOUSE_USER=default_user
+      - CLICKHOUSE_PASSWORD=default_password
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+
+volumes:
+  # Mongodb volume
+  mongodb-data:
+    driver: local
+
+  # Clickhouse volumes
+  clickhouse-data:
+    driver: local
+
+  clickhouse-logs:
+    driver: local
+
+  clickhouse-config:
+    driver: local
+
+  clickhouse-user:
+    driver: local
+
+networks:
+  data-eng-network: 
+    name: data-eng-network
+    driver: bridge

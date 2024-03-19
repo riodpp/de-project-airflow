@@ -1,0 +1,6 @@
+version: '3.1'
+services:
+  scheduler:
+    user: root
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw
