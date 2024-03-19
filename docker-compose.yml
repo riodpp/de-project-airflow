@@ -1,17 +1,4 @@
 services:
-  # scrap-website:
-  #   image: scrap-website:1.0 
-  #   networks:
-  #     - data-eng-network
-  #   environment:
-  #     MONGODB_HOSTNAME: mongodb
-  dbt:
-    image: dbt-clickhouse-custom:1.0
-    command: ["run", "--models", "my_second_dbt_model"]
-    environment:
-      - HOST_CLICKHOUSE=clickhousedb
-    networks:
-      - data-eng-network
 
   mongodb:
     image: mongo:7
