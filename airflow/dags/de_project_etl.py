@@ -5,24 +5,9 @@ from pendulum import datetime
 
 
 @dag(start_date=datetime(2022, 8, 1), schedule=None, catchup=False)
-def bash_two_commands_example_dag():
-    scrape_data = BashOperator(
-        task_id="scrape_data_website",
-        bash_command="echo $AIRFLOW_HOME"
-    )
+def airflow_docker_operator():
 
-    try_docker_operator = DockerOperator(
-        task_id='run_docker_container_test',
-        image='python:3.10-slim-bullseye',
-        command='python --version',
-        container_name='coba-docker-operator-1',
-        docker_url='unix://var/run/docker.sock',
-        network_mode='bridge',
-        mount_tmp_dir=False,
-        auto_remove='success'
-    )
-
-    try_docker_operator = DockerOperator(
+    extract_mongo_task = DockerOperator(
         task_id='extract_mongo',
         image='extract-mongo:1.0',
         command=["python", "extract_mongo_clickhouse.py"],
@@ -41,22 +26,50 @@ def bash_two_commands_example_dag():
         }
     )
 
-    try_dbt_clickhouse = DockerOperator(
-        task_id='run_dbt_clickhouse',
+    fact_house_task = DockerOperator(
+        task_id='fact_house',
         image='dbt-clickhouse-custom:1.0',
-        command=["run", "--models", "my_second_dbt_model"],
-        container_name='coba-dbt-clickhouse',
+        command=["run", "--models", "fact_house"],
+        container_name='fact-house',
         docker_url='unix://var/run/docker.sock',
         network_mode='data-eng-network',
         mount_tmp_dir=False,
         auto_remove='success',
         environment={
             'HOST_CLICKHOUSE': 'clickhousedb'
-        }
-        
+        }   
     )
 
-    scrape_data >> try_docker_operator >> try_dbt_clickhouse
+    mart_region_house_sell_task = DockerOperator(
+        task_id='mart_region_house_sell',
+        image='dbt-clickhouse-custom:1.0',
+        command=["run", "--models", "mart_region_house_sell"],
+        container_name='mart-region-house-sell',
+        docker_url='unix://var/run/docker.sock',
+        network_mode='data-eng-network',
+        mount_tmp_dir=False,
+        auto_remove='success',
+        environment={
+            'HOST_CLICKHOUSE': 'clickhousedb'
+        }   
+    )
+
+    mart_spec_house_price_task = DockerOperator(
+        task_id='mart_spec_house_price',
+        image='dbt-clickhouse-custom:1.0',
+        command=["run", "--models", "mart_spec_house_price"],
+        container_name='mart_spec_house_price',
+        docker_url='unix://var/run/docker.sock',
+        network_mode='data-eng-network',
+        mount_tmp_dir=False,
+        auto_remove='success',
+        environment={
+            'HOST_CLICKHOUSE': 'clickhousedb'
+        }   
+    )
+
+    extract_mongo_task >> fact_house_task >> mart_region_house_sell_task
+    fact_house_task >> mart_spec_house_price_task
 
 
-bash_two_commands_example_dag()
+airflow_docker_operator()

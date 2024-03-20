@@ -1,7 +1,0 @@
-version: 2
-
-sources:
-  - name: lake
-    database: de_project
-    tables: 
-      - name: houses_raw
