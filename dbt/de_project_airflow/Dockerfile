@@ -7,5 +7,4 @@ COPY . .
 
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["dbt", "run", "--models"]
-CMD ["my_first_dbt_model"]
+ENTRYPOINT ["dbt"]

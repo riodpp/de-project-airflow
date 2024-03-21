@@ -27,8 +27,7 @@ ch_client.execute('''
         area Int32,
         district String,
         city String,
-        release_date Date,
-        url String
+        release_date Date
     ) ENGINE = MergeTree()
     ORDER BY id
 ''')
@@ -47,6 +46,5 @@ for document in mongo_data:
         document['area'],
         document['district'],
         document['city'],
-        release_date,
-        document['url']
+        release_date
     )])
